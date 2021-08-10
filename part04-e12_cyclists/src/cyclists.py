@@ -3,11 +3,14 @@
 import pandas as pd
 
 def cyclists():
-    return None
+    df = pd.read_csv("src/Helsingin_pyorailijamaarat.csv", sep=";")
+    df.dropna(how='all', axis=0, inplace=True)
+    df.dropna(how='all', axis=1, inplace=True)
+    return df
 
 
 def main():
-    return
+    print(cyclists())
     
 if __name__ == "__main__":
     main()
