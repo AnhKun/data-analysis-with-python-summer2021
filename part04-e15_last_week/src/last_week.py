@@ -1,9 +1,26 @@
 #!/usr/bin/env python3
 
 import pandas as pd
+import numpy as np
 
 def last_week():
-    return pd.DataFrame()
+    df = pd.read_csv("src/UK-top40-1964-1-2.tsv", sep="\t")
+    df2 = df.copy()
+    df2.replace(["New", "Re"], np.nan, inplace=True)
+    df2 = df2.astype({'LW': 'float'})
+    df2["Peak Pos"].where(lambda x: (df2["Peak Pos"] != df2["Pos"]) | (df2["Peak Pos"] == df2["LW"]), np.nan, inplace=True)
+    df2["WoC"] = df2["WoC"] - 1
+    df2["Pos"] = df2["LW"]
+    df2 = df2[df2["Pos"].notna()]
+    df2["LW"] = np.nan
+    df2["Pos"] = df2["Pos"].astype('int64')
+    #print(df2.sort_values("Pos"))
+    for i in range(1, 41):
+        if i not in df2["Pos"].values:
+            df2 = df2.append([{"Pos":i}])
+    df2.sort_values("Pos", inplace=True)
+    df2.reset_index(drop=True, inplace=True)
+    return df2
 
 def main():
     df = last_week()
