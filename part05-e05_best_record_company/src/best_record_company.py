@@ -3,10 +3,14 @@
 import pandas as pd
 
 def best_record_company():
-    return None
+    df = pd.read_csv("src/UK-top40-1964-1-2.tsv", sep="\t")
 
+    df2 = df.groupby("Publisher").sum()
+    best_company = df2["WoC"].idxmax()
+    return df[df["Publisher"] == best_company]
+    
 def main():
-    return
+    print(best_record_company())
     
 
 if __name__ == "__main__":
