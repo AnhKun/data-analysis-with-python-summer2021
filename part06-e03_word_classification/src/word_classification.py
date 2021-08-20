@@ -37,18 +37,52 @@ def load_english():
     return lines
 
 def get_features(a):
-    return np.array([[]])
+    features = np.zeros((len(a), 29))
+    #for each row, the number of occurences of a certain character in each word is listed
+    for i, word in enumerate(a):
+        for j, char in enumerate(alphabet):
+            features[i, j] += word.count(char)
+
+    return features
+
 
 def contains_valid_chars(s):
+    for char in s:
+        if char not in alphabet:
+            return False
     return True
 
 def get_features_and_labels():
-    return np.array([[]]), np.array([])
+    #the remaining words must all be converted to lower case
+    finnish = load_finnish()
+    finnish = [i.lower() for i in finnish]
+    finnish = [x for x in finnish if contains_valid_chars(x)]
+
+    english = load_english()
+    english = [x for x in english if x[0].islower()]
+    english = [i.lower() for i in english]
+    english = [x for x in english if contains_valid_chars(x)]
+
+    finnish_features = get_features(finnish)
+    english_features = get_features(english)
+    X = np.concatenate((finnish_features, english_features))
+
+    y = np.zeros(len(finnish)+len(english))
+    # 1 for english, 0 for finnish
+    y[len(finnish): ] = 1
+    return (X, y)  
 
 
 def word_classification():
-    return []
+    X, y = get_features_and_labels()
+    model = MultinomialNB()
+    #this is a less precise version, because the default shuffle is false, 
+    # which means that the splits are the same across all 5 calls 
+    #scores = cross_val_score(model, X, y, cv=5)
 
+    gen = model_selection.KFold(n_splits=5, shuffle=True, random_state=0)
+    scores = cross_val_score(model, X, y, cv=gen)
+    return scores
 
 def main():
     print("Accuracy scores are:", word_classification())
